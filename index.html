@@ -15,245 +15,208 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="preload" href="fonts/Anton-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Bewust één donkere wereld: scoreboard-look, CFC-rood als accent */
+/* Eén donkere scoreboard-wereld, CFC-rood als accent */
 :root{
-  --bg:#0d0c0c; --side:#090808; --surface:#151413; --surface-2:#1d1b1a; --line:#262321; --line-2:#3a3532;
-  --text:#f2ede6; --soft:#b9b0a7; --muted:#8a837c; --dim:#4e4945; --faint:#2c2927;
+  --bg:#0d0c0c; --surface:#151413; --surface-2:#1d1b1a; --line:#262321; --line-2:#3a3532;
+  --text:#f2ede6; --soft:#b9b0a7; --muted:#8a837c; --dim:#4e4945;
   --accent:#ec3b2f; --accent-2:#ff5345; --on-accent:#1a0806;
   --rest:#3fbf78; --prep:#f2b233;
   --display:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;
   --cond:"Barlow Condensed","Arial Narrow",sans-serif;
   --body:"DM Sans",system-ui,-apple-system,sans-serif;
-  --side-w:clamp(250px,29vw,380px);
+  --safe-v:calc(env(safe-area-inset-top) + env(safe-area-inset-bottom));
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
-body{font-family:var(--body);font-size:16px;line-height:1.4;overscroll-behavior:none;-webkit-user-select:none;user-select:none;
-  touch-action:manipulation;-webkit-font-smoothing:antialiased}
-button,input,select{font:inherit;color:inherit}
+body{font-family:var(--body);font-size:16px;line-height:1.4;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;padding:0}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
 input{-webkit-user-select:text;user-select:text}
-h2{margin:0;font-family:var(--display);font-weight:400;letter-spacing:.02em}
-.mi .t,.si .t,.lbl,.side-foot,h2,.cb,.su-top .sub,.savebar button,.btn-add{text-transform:uppercase}
+h2{margin:0;font-family:var(--display);font-weight:400;letter-spacing:.02em;text-transform:uppercase}
 svg{display:block}
-
-#app{position:fixed;inset:0;display:flex;background:var(--bg);overflow:hidden}
-
-/* ================= ZIJBALK ================= */
-#side{width:var(--side-w);flex:none;display:flex;flex-direction:column;background:var(--side);border-right:1px solid var(--line);
-  padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);transition:margin-left .3s cubic-bezier(.2,.8,.2,1),transform .3s cubic-bezier(.2,.8,.2,1);z-index:20}
-.side-head{display:flex;align-items:center;gap:12px;padding:18px 14px 10px 24px}
-.side-head .logo{height:40px;width:auto;display:block}
-.side-head .wt{font-family:var(--cond);font-weight:600;font-size:12px;letter-spacing:.38em;color:var(--muted);line-height:1.25;flex:1}
-.iconbtn{width:42px;height:42px;display:grid;place-items:center;color:var(--muted);border-radius:4px;flex:none}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;color:var(--muted);border-radius:4px;flex:none}
 .iconbtn:active{color:var(--text);background:var(--surface)}
 .iconbtn svg{width:22px;height:22px}
-.side-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 20px 12px 24px}
-.lbl{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.42em;color:var(--muted);margin:16px 0 4px}
-.lbl[hidden]{display:none}
-.mi{position:relative;display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;padding:14px 0 14px 26px;border-bottom:1px solid var(--line)}
-.mi .t{font-family:var(--display);font-size:clamp(26px,2.7vw,38px);line-height:1;color:var(--dim);letter-spacing:.01em;transition:color .15s}
-.mi .s{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.26em;color:var(--dim);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mi::before{content:"";position:absolute;left:4px;top:16px;bottom:16px;width:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px rgba(236,59,47,.7);opacity:0;transition:opacity .15s}
-.mi.on .t{color:var(--text)}
-.mi.on .s{color:var(--soft)}
-.mi.on::before{opacity:1}
-.mi:active .t{color:var(--soft)}
-.si{display:flex;align-items:center;border-bottom:1px solid var(--line)}
-.si .go{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left;padding:12px 0 12px 26px;position:relative}
-.si .go::before{content:"";position:absolute;left:4px;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--accent);opacity:0}
-.si.on .go::before{opacity:1}
-.si .t{font-family:var(--display);font-size:22px;line-height:1;color:var(--dim)}
-.si.on .t{color:var(--text)}
-.si .s{font-family:var(--cond);font-weight:600;font-size:12px;letter-spacing:.24em;color:var(--dim)}
-.si .x{padding:10px 4px 10px 10px;font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--dim)}
-.si .x.arm{color:var(--accent-2)}
-.side-foot{display:flex;align-items:center;gap:10px;padding:14px 24px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid var(--line);
-  font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.34em;color:var(--muted);text-align:left}
-.side-foot svg{width:18px;height:18px}
-.side-foot:active{color:var(--text)}
-#scrim{display:none}
 
-@media (min-width:700px){
-  #app:not(.side-open) #side{margin-left:calc(-1 * (var(--side-w) + env(safe-area-inset-left)))}
-}
-@media (max-width:699px){
-  #side{position:absolute;top:0;bottom:0;left:0;width:min(86vw,340px);transform:translateX(-102%);box-shadow:20px 0 60px rgba(0,0,0,.6)}
-  #app.side-open #side{transform:none}
-  #scrim{display:block;position:absolute;inset:0;z-index:15;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .3s}
-  #app.side-open #scrim{opacity:1;pointer-events:auto}
-}
+#app{position:fixed;inset:0;background:var(--bg);overflow:hidden}
 
 /* ================= STAGE ================= */
 #stage{--ph:var(--accent);--glow:rgba(236,59,47,.12);
-  flex:1;min-width:0;position:relative;display:flex;flex-direction:column;container-type:inline-size;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) 0;
-  background:radial-gradient(ellipse 70% 60% at 50% 42%,var(--glow),transparent 70%),var(--bg);transition:background .5s}
-#app:not(.side-open) #stage{padding-left:env(safe-area-inset-left)}
-@media (max-width:699px){#stage{padding-left:env(safe-area-inset-left)}}
+  position:absolute;inset:0;display:flex;flex-direction:column;container-type:inline-size;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:radial-gradient(ellipse 72% 62% at 50% 45%,var(--glow),transparent 70%),var(--bg);transition:background .5s}
 #stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55))}
 #stage.ph-rest{--ph:var(--rest);--glow:rgba(63,191,120,.11)}
 #stage.ph-prep{--ph:var(--prep);--glow:rgba(242,178,51,.10)}
 #stage.ph-idle{--glow:rgba(236,59,47,.06)}
-#stage.ph-done{--ph:var(--rest);--glow:rgba(63,191,120,.08)}
+#stage.ph-done{--ph:var(--rest);--glow:rgba(63,191,120,.09)}
 
-.stage-top{display:flex;align-items:center;gap:10px;padding:14px 22px 0 12px;position:relative;z-index:2;min-height:62px}
-.mini-logo{height:30px;width:auto;display:none}
-#app:not(.side-open) .mini-logo{display:block}
-.motto{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:clamp(13px,1.9cqw,19px);letter-spacing:.5em;color:var(--dim);white-space:nowrap}
-.motto b{color:var(--accent);font-weight:700;margin:0 .35em}
-@container (max-width:520px){.motto{display:none}}
+.top{display:flex;align-items:center;gap:14px;padding:12px 12px 0 18px;min-height:58px;position:relative;z-index:2}
+.top .logo{height:34px;width:auto;display:block}
+.newbtn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border:1.5px solid var(--line-2);border-radius:3px;
+  font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:var(--text);white-space:nowrap}
+.newbtn svg{width:12px;height:12px;color:var(--accent)}
+.newbtn:active{background:var(--surface-2);border-color:var(--muted)}
+.top .gear{margin-left:auto}
+.st-run .newbtn,.st-run .gear{visibility:hidden}
 
-.clock{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2cqw,22px);padding:0 16px 18px;position:relative;z-index:1}
-.phase{display:flex;align-items:center;gap:.9em;font-family:var(--cond);font-weight:600;font-size:clamp(13px,2cqw,22px);letter-spacing:.42em;color:var(--soft);
-  text-transform:uppercase;white-space:nowrap;max-width:100%;overflow:hidden}
+.clock{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:clamp(6px,1.4cqw,16px);padding:0 10px;position:relative;z-index:1;overflow:hidden}
+.phase{display:flex;align-items:center;gap:.9em;font-family:var(--cond);font-weight:600;font-size:clamp(13px,1.9cqw,22px);letter-spacing:.38em;color:var(--soft);
+  text-transform:uppercase;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .dot{width:.62em;height:.62em;border-radius:50%;background:var(--ph);box-shadow:0 0 14px var(--ph);flex:none}
 .ph-idle .dot{background:var(--dim);box-shadow:none}
 .running .dot{animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.35}}
-.digits{font-family:var(--display);font-size:22vw;font-size:min(34cqw,calc(100svh - 340px),330px);line-height:.9;color:var(--text);
-  letter-spacing:0;white-space:nowrap;margin-top:-.04em;text-shadow:0 10px 60px rgba(0,0,0,.5)}
-.digits.long{font-size:min(24cqw,calc(100svh - 340px),260px)}
+
+/* de klok: zo groot als het scherm toelaat */
+.digits{font-family:var(--display);line-height:.86;color:var(--text);white-space:nowrap;text-shadow:0 10px 60px rgba(0,0,0,.5);
+  font-size:30vw;font-size:min(38cqw,calc((100svh - 330px - var(--safe-v)) * 1.12),560px)}
+.digits.long{font-size:min(27cqw,calc((100svh - 330px - var(--safe-v)) * 1.12),420px)}
 .digits b{display:inline-block;width:.55em;text-align:center;font-weight:400}
 .digits i{display:inline-block;width:.3em;text-align:center;font-style:normal;color:var(--ph);transform:translateY(-.03em)}
-.ph-idle .digits{cursor:pointer}
 .paused .digits{animation:blink 1.2s steps(2,start) infinite}
 @keyframes blink{50%{opacity:.3}}
+.digits.well{font-size:min(20cqw,calc((100svh - 330px - var(--safe-v)) * 1.1),400px);letter-spacing:.015em;color:#fff;
+  text-shadow:0 0 50px rgba(255,255,255,.18),0 10px 60px rgba(0,0,0,.6)}
+@keyframes pop{from{transform:scale(.86);opacity:0}to{transform:none;opacity:1}}
+.digits.well{animation:pop .5s cubic-bezier(.2,.9,.3,1.3)}
 
-.meta{display:flex;align-items:baseline;justify-content:center;gap:clamp(18px,3.4cqw,40px)}
-.meta .m{display:flex;align-items:baseline;gap:clamp(10px,1.8cqw,22px)}
-.meta .m[hidden],.meta .sep[hidden]{display:none}
-.meta .k{font-family:var(--cond);font-weight:600;font-size:clamp(13px,1.9cqw,21px);letter-spacing:.42em;color:var(--soft)}
-.meta .v{font-family:var(--display);font-size:clamp(30px,5.6cqw,68px);line-height:1;color:var(--text)}
-.meta .v.hi{color:var(--ph)}
-.meta .v small{font-size:.5em;color:var(--muted);margin-left:.08em}
-.meta .sep{width:1px;align-self:stretch;background:var(--line-2);margin:4px 0}
+.bar{width:min(86cqw,1200px);height:5px;border-radius:3px;background:#221f1d;overflow:hidden;flex:none}
+.bar i{display:block;height:100%;width:0;background:var(--ph);box-shadow:0 0 14px var(--ph);border-radius:3px;transition:width .2s linear}
+.sub{min-height:18px;max-width:100%;overflow-x:auto;white-space:nowrap;font-family:var(--cond);font-weight:600;font-size:clamp(13px,1.6cqw,16px);
+  letter-spacing:.24em;color:var(--muted);text-transform:uppercase;text-align:center;padding:0 8px}
+.sub b{color:var(--text);font-weight:600}
 
-.prog{width:min(80cqw,1100px)}
-.bar{height:6px;border-radius:3px;background:#221f1d;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 70%),var(--ph);border-radius:3px;box-shadow:0 0 16px var(--ph);transition:width .2s linear}
-.prog-meta{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-family:var(--cond);font-weight:600;font-size:clamp(12px,1.7cqw,17px);letter-spacing:.3em;color:var(--dim);white-space:nowrap}
-.prog-meta span:nth-child(2){color:var(--muted);overflow:hidden;text-overflow:ellipsis;min-width:0}
-
-.ctrl{display:flex;justify-content:center;gap:clamp(10px,1.6cqw,18px);margin-top:clamp(2px,1cqw,10px)}
-.cb{display:inline-flex;align-items:center;justify-content:center;gap:.8em;height:clamp(52px,6.4cqw,66px);padding:0 clamp(18px,3cqw,36px);
-  border:1.5px solid var(--line-2);border-radius:3px;background:rgba(255,255,255,.015);color:var(--text);
-  font-family:var(--cond);font-weight:700;font-size:clamp(16px,2.1cqw,24px);letter-spacing:.24em;white-space:nowrap;transition:background .1s,border-color .1s}
+/* onderbalk: kleine blokken voor ronde/totaal + bediening */
+.dock{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 16px;position:relative;z-index:2}
+.chips{display:flex;gap:10px;min-width:0}
+.chip{display:inline-flex;align-items:baseline;gap:10px;height:48px;padding:0 14px;border:1.5px solid var(--line);border-radius:3px;background:rgba(255,255,255,.015);white-space:nowrap}
+.chip[hidden]{display:none}
+.chip .k{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.3em;color:var(--soft);text-transform:uppercase;align-self:center}
+.chip .v{font-family:var(--display);font-size:28px;line-height:48px;color:var(--text)}
+.chip .v small{font-size:.55em;color:var(--muted);margin-left:.08em}
+.chip.hi .v{color:var(--ph)}
+button.chip{font:inherit;color:inherit}
+.chip.tap{border-color:var(--ph);cursor:pointer}
+.chip.tap .k::before{content:"+ ";color:var(--ph);letter-spacing:0}
+.chip.tap:active{background:var(--surface-2)}
+.ctrl{display:flex;gap:10px}
+.cb{display:inline-flex;align-items:center;justify-content:center;gap:.7em;height:48px;padding:0 22px;border:1.5px solid var(--line-2);border-radius:3px;
+  background:rgba(255,255,255,.015);color:var(--text);font-family:var(--cond);font-weight:700;font-size:17px;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
 .cb svg{width:.8em;height:.8em;color:var(--muted)}
 .cb:active{background:var(--surface-2);border-color:var(--muted)}
-.cb.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 10px 30px rgba(236,59,47,.25)}
-.cb.pri svg{color:var(--on-accent)}
-.cb.pri:active{background:var(--accent-2)}
+.cb.big{height:60px;padding:0 54px;font-size:22px;background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 10px 30px rgba(236,59,47,.28)}
+.cb.big svg{color:var(--on-accent)}
+.cb.big:active{background:var(--accent-2)}
 .cb.go{background:var(--rest);border-color:var(--rest);color:#06170d}
 .cb.go svg{color:#06170d}
-.cb.warn{border-color:var(--accent);color:var(--accent-2)}
-.cb.warn svg{color:var(--accent-2)}
-@container (max-width:560px){
-  .phase{letter-spacing:.3em}
-}
+.cb.stop{border-color:var(--accent);color:var(--accent-2)}
+.cb.stop svg{color:var(--accent-2)}
+
 @media (orientation:portrait){
-  @container (max-width:560px){
-    .prog-meta{flex-wrap:wrap;row-gap:8px}
-    .prog-meta span:nth-child(2){order:3;flex-basis:100%;text-align:center;color:var(--soft)}
-    .ctrl{flex-wrap:wrap;width:100%}
-    .cb{flex:1 1 40%}
-    .cb.pri{flex-basis:100%;order:-1;height:64px}
+  @container (max-width:640px){
+    .dock{flex-direction:column;align-items:stretch;padding-bottom:18px}
+    .chips{width:100%}
+    .chip{flex:1;justify-content:center}
+    .ctrl{width:100%}
+    .cb{flex:1}
+    .cb.big{height:64px}
   }
 }
-.splits{min-height:18px;max-width:100%;overflow-x:auto;white-space:nowrap;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.2em;color:var(--muted);text-align:center;padding:0 8px}
-.splits b{color:var(--text);font-weight:600}
-
-@media (max-height:520px) and (orientation:landscape){
-  .stage-top{min-height:40px;padding-top:4px}
-  .stage-top .iconbtn{width:38px;height:38px}
-  .mini-logo{height:24px}
-  .clock{gap:6px;padding-bottom:8px}
-  .phase{font-size:13px}
-  .digits{font-size:min(34cqw,calc(100svh - 212px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),330px)}
-  .digits.long{font-size:min(24cqw,calc(100svh - 212px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),260px)}
-  .meta .v{font-size:clamp(24px,4cqw,40px)}
-  .meta .k{font-size:13px}
-  .prog{width:min(92cqw,1100px)}
-  .prog-meta{margin-top:5px;font-size:12px}
-  .ctrl{width:100%;max-width:820px;flex-wrap:nowrap;gap:8px}
-  .cb{flex:1 1 0;min-width:0;height:44px;padding:0 8px;gap:.5em;letter-spacing:.14em;font-size:clamp(14px,2.3cqw,20px)}
-  .splits{display:none}
+@media (orientation:landscape){
+  .digits{font-size:min(38cqw,calc((100svh - 190px - var(--safe-v)) * 1.12),560px)}
+  .digits.long{font-size:min(27cqw,calc((100svh - 190px - var(--safe-v)) * 1.12),420px)}
+  .digits.well{font-size:min(20cqw,calc((100svh - 190px - var(--safe-v)) * 1.1),400px)}
 }
-.clock{justify-content:safe center;overflow-y:auto;overflow-x:hidden}
-@media (prefers-reduced-motion:reduce){.running .dot,.paused .digits{animation:none}#side{transition:none}}
+@media (orientation:landscape) and (max-height:520px){
+  .top{min-height:46px;padding-top:6px}
+  .top .logo{height:28px}
+  .newbtn{height:32px;font-size:13px}
+  .clock{gap:5px}
+  .phase{font-size:13px}
+  .digits{font-size:min(38cqw,calc((100svh - 160px - var(--safe-v)) * 1.12),560px)}
+  .digits.long{font-size:min(27cqw,calc((100svh - 160px - var(--safe-v)) * 1.12),420px)}
+  .digits.well{font-size:min(20cqw,calc((100svh - 160px - var(--safe-v)) * 1.1),400px)}
+  .sub{min-height:16px;font-size:12px}
+  .dock{padding:6px 16px 8px}
+  .chip{height:40px}.chip .v{font-size:24px;line-height:40px}
+  .cb{height:40px;font-size:15px}.cb.big{height:46px;font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){.running .dot,.paused .digits,.digits.well{animation:none}}
 
-/* ================= AANPASSEN (overlay) ================= */
-#setup{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;background:var(--bg);
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 0}
-#app:not(.side-open) #setup{padding-left:env(safe-area-inset-left)}
-@media (max-width:699px){#setup{padding-left:env(safe-area-inset-left)}}
-#setup[hidden]{display:none}
-.su-top{display:flex;align-items:center;gap:14px;padding:16px 16px 12px 24px;border-bottom:1px solid var(--line);flex:none}
-.su-top h2{font-size:34px;line-height:1;flex:1}
-.su-top .sub{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.4em;color:var(--muted)}
-.su-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 24px 24px}
-.su-inner{max-width:620px}
+/* ================= OVERLAYS ================= */
+.overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;background:var(--bg);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+.overlay[hidden]{display:none}
+#setup{z-index:11}
+.ov-top{display:flex;align-items:center;gap:8px;padding:12px 10px 12px 18px;border-bottom:1px solid var(--line);flex:none}
+.ov-top h2{font-size:32px;line-height:1;flex:1}
+.ov-top .back{margin-left:-10px}
+.ov-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px calc(env(safe-area-inset-bottom) + 24px)}
+.ov-inner{max-width:640px;margin:0 auto}
+.lbl{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.42em;color:var(--muted);text-transform:uppercase;margin:22px 0 10px}
+.lbl[hidden]{display:none}
+
+.picks{display:flex;flex-direction:column;gap:10px}
+.pick{display:flex;align-items:center;gap:14px;width:100%;min-height:82px;padding:12px 18px 12px 20px;text-align:left;border:1.5px solid var(--line-2);border-radius:4px;background:var(--surface)}
+.pick:active{border-color:var(--accent);background:var(--surface-2)}
+.pick .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.pick .t{font-family:var(--display);font-size:36px;line-height:.95;text-transform:uppercase;color:var(--text)}
+.pick .s{font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick .arrow{font-family:var(--display);font-size:34px;color:var(--dim)}
+.pick.own{border-color:rgba(236,59,47,.55);background:linear-gradient(90deg,rgba(236,59,47,.12),var(--surface) 70%)}
+.pick.own .t,.pick.own .arrow{color:var(--accent-2)}
+.saved-row{display:flex;gap:8px}
+.saved-row .pick{min-height:70px}
+.saved-row .pick .t{font-size:28px}
+.saved-row .x{flex:none;width:64px;border:1.5px solid var(--line);border-radius:4px;font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--dim)}
+.saved-row .x.arm{color:var(--accent-2);border-color:var(--accent)}
+
+/* aanpassen */
 .panel[hidden]{display:none}
 .field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .field .l{font-family:var(--cond);font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--soft)}
 .field .l small{font-size:12px;letter-spacing:.2em;color:var(--dim);margin-left:6px}
-.tf{display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;padding:4px 8px}
-.tf input{width:50px;text-align:center;background:transparent;border:0;font-family:var(--display);font-size:28px;padding:2px 0;-moz-appearance:textfield;appearance:textfield}
-.tf input::-webkit-outer-spin-button,.tf input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.tf .colon{font-family:var(--display);font-size:26px;color:var(--accent)}
 .tstep{display:flex;align-items:stretch;flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;overflow:hidden}
 .tstep button{width:52px;height:52px;display:grid;place-items:center;font-size:26px;line-height:1;color:var(--soft);touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .tstep button:active{background:var(--surface-2);color:var(--text)}
 .tstep input{width:94px;text-align:center;background:transparent;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:0;
   font-family:var(--display);font-size:30px;color:var(--text);padding:0;-webkit-user-select:none;user-select:none;cursor:pointer}
-.tstep input.num{width:94px}
 .tstep input:not([readonly]){background:var(--surface-2);-webkit-user-select:text;user-select:text;cursor:text}
 .tstep input::placeholder{color:var(--dim)}
-.brow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px}
-.bl{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
-.step{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;overflow:hidden}
-.step button{width:44px;height:46px;font-size:22px;color:var(--muted)}
-.step button:active{background:var(--surface-2);color:var(--text)}
-.step input{width:52px;text-align:center;background:transparent;border:0;font-family:var(--display);font-size:28px;-moz-appearance:textfield;appearance:textfield}
-.step input::-webkit-outer-spin-button,.step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
-.chip{border:1px solid var(--line-2);border-radius:3px;padding:9px 12px;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
-.chip:active{border-color:var(--accent);color:var(--text)}
+.chips-set{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
+.chip-set{border:1px solid var(--line-2);border-radius:3px;padding:10px 13px;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.chip-set:active{border-color:var(--accent);color:var(--text)}
 .summary{margin-top:18px;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.34em;color:var(--muted);text-transform:uppercase}
 .summary b{font-family:var(--display);font-size:34px;font-weight:400;letter-spacing:.02em;color:var(--text)}
-.su-bot{flex:none;display:flex;gap:12px;padding:12px 24px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid var(--line)}
-.su-bot .cb{flex:1}
-.su-bot .cb.pri{flex:2 1 0;order:0}
+.ov-bot{flex:none;padding:12px 18px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid var(--line)}
+.ov-bot .cb.big{width:100%;max-width:640px;margin:0 auto;display:flex;height:64px}
 
-.blocks{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.blocks{display:flex;flex-direction:column;gap:10px}
 .blk{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px}
 .blk-head{display:flex;align-items:center;gap:6px;margin-bottom:10px}
 .blk-head .idx{font-family:var(--display);font-size:22px;color:var(--accent);width:24px}
-.blk-head input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line-2);border-radius:3px;padding:9px 10px;font-size:15px}
+.blk-head input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line-2);border-radius:3px;padding:9px 10px;font-size:16px}
 .blk-head .mv{width:34px;height:38px;display:grid;place-items:center;color:var(--muted);font-size:16px;border-radius:3px}
 .blk-head .mv:active{background:var(--surface-2);color:var(--text)}
-.blk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px 14px}
-.blk-grid .f{display:flex;flex-direction:column;gap:5px}
-.blk-grid .f.full{grid-column:1/-1}
-.blk-grid label{font-family:var(--cond);font-weight:600;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
-.blk-grid .tf,.blk-grid .step{align-self:flex-start}
 .kindsel{display:flex;gap:6px}
-.kindsel button{flex:1;padding:9px 4px;border:1px solid var(--line-2);border-radius:3px;background:var(--bg);font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.2em;color:var(--muted)}
+.kindsel button{flex:1;padding:10px 4px;border:1px solid var(--line-2);border-radius:3px;background:var(--bg);font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.2em;color:var(--muted)}
 .kindsel button.on{border-color:var(--accent);color:var(--text);background:var(--surface-2)}
-.btn-add{width:100%;margin-top:10px;padding:15px;border:1px dashed var(--line-2);border-radius:3px;font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.28em;color:var(--muted)}
+.brow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px}
+.bl{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.btn-add{width:100%;margin-top:10px;padding:15px;border:1px dashed var(--line-2);border-radius:3px;font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase}
 .btn-add:active{border-color:var(--accent);color:var(--text)}
 .savebar{display:flex;gap:8px;margin-top:18px}
-.savebar input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;padding:12px;font-size:15px}
-.savebar button{padding:0 18px;border:1px solid var(--line-2);border-radius:3px;font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.22em}
+.savebar input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;padding:12px;font-size:16px}
+.savebar button{padding:0 18px;border:1px solid var(--line-2);border-radius:3px;font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.22em;text-transform:uppercase}
 .savebar button:active{border-color:var(--rest);color:var(--rest)}
 
-/* ================= INSTELLINGEN (sheet) ================= */
+/* instellingen */
 .sheet{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;background:rgba(0,0,0,.65)}
 .sheet[hidden]{display:none}
-.sheet-body{width:100%;max-width:560px;background:#121110;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;
-  padding:14px 22px calc(env(safe-area-inset-bottom) + 22px);max-height:88%;overflow-y:auto}
+.sheet-body{width:100%;max-width:560px;background:#121110;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;padding:14px 22px calc(env(safe-area-inset-bottom) + 22px);max-height:88%;overflow-y:auto}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .sheet-head h2{font-size:30px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
@@ -275,74 +238,54 @@ svg{display:block}
 <body>
 <div id="app">
 
-  <!-- ============ ZIJBALK ============ -->
-  <aside id="side" aria-label="Modus">
-    <div class="side-head">
-      <img class="logo" src="icons/cfc-logo.png" alt="CrossFit Castricum" width="1024" height="383">
-      <div class="wt">WOD<br>TIMER</div>
-      <button class="iconbtn" id="side-close" aria-label="Zijbalk verbergen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M9 4.5v15"/><path d="M15.5 10l-2 2 2 2"/></svg></button>
-    </div>
-    <div class="side-scroll">
-      <div class="lbl">Modus</div>
-      <nav id="modes">
-        <button class="mi" data-mode="fortime"><span class="t">For Time</span><span class="s" data-sub="fortime"></span></button>
-        <button class="mi" data-mode="amrap"><span class="t">AMRAP</span><span class="s" data-sub="amrap"></span></button>
-        <button class="mi" data-mode="emom"><span class="t">EMOM</span><span class="s" data-sub="emom"></span></button>
-        <button class="mi" data-mode="tabata"><span class="t">Tabata</span><span class="s" data-sub="tabata"></span></button>
-        <button class="mi" data-mode="interval"><span class="t">Interval</span><span class="s" data-sub="interval"></span></button>
-        <button class="mi" data-mode="countdown"><span class="t">Aftellen</span><span class="s" data-sub="countdown"></span></button>
-        <button class="mi" data-mode="custom"><span class="t">Eigen WOD</span><span class="s" data-sub="custom"></span></button>
-      </nav>
-      <div class="lbl" id="saved-lbl" hidden>Opgeslagen</div>
-      <div id="saved-list"></div>
-    </div>
-    <button class="side-foot" id="open-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Instellingen</button>
-  </aside>
-  <div id="scrim"></div>
-
-  <!-- ============ STAGE ============ -->
+  <!-- ============ KLOK ============ -->
   <main id="stage" class="ph-idle">
-    <header class="stage-top">
-      <button class="iconbtn" id="side-toggle" aria-label="Zijbalk tonen of verbergen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="1.5"/><path d="M9 4.5v15"/></svg></button>
-      <img class="mini-logo" src="icons/cfc-logo.png" alt="CrossFit Castricum" width="1024" height="383">
-      <div class="motto">COMMUNITY<b>✦</b>BASED FITNESS</div>
+    <header class="top">
+      <img class="logo" src="icons/cfc-logo.png" alt="CrossFit Castricum" width="1024" height="383">
+      <button class="newbtn" id="open-picker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="M12 4v16M4 12h16"/></svg>Nieuwe workout</button>
+      <button class="iconbtn gear" id="open-settings" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </header>
     <div class="clock">
       <div class="phase"><i class="dot"></i><span id="t-label"></span></div>
-      <div class="digits" id="t-digits" role="timer" aria-live="off"></div>
-      <div class="meta">
-        <div class="m" id="m1"><span class="k" id="m1k"></span><span class="v hi" id="m1v"></span></div>
-        <div class="sep" id="msep"></div>
-        <div class="m" id="m2"><span class="k" id="m2k"></span><span class="v" id="m2v"></span></div>
-      </div>
-      <div class="prog">
-        <div class="bar"><i id="p-fill"></i></div>
-        <div class="prog-meta"><span id="p-left"></span><span id="p-mid"></span><span id="p-right"></span></div>
+      <div class="digits" id="t-digits" role="timer"></div>
+      <div class="bar"><i id="p-fill"></i></div>
+      <div class="sub" id="t-sub"></div>
+    </div>
+    <footer class="dock">
+      <div class="chips">
+        <button class="chip hi" id="c1" type="button"><span class="k" id="c1k"></span><span class="v" id="c1v"></span></button>
+        <div class="chip" id="c2"><span class="k" id="c2k"></span><span class="v" id="c2v"></span></div>
       </div>
       <div class="ctrl" id="ctrl"></div>
-      <div class="splits" id="t-splits"></div>
-    </div>
+    </footer>
+  </main>
 
-    <!-- ============ AANPASSEN ============ -->
-    <section id="setup" hidden>
-      <div class="su-top">
-        <h2 id="su-title">AMRAP</h2>
-        <span class="sub">Aanpassen</span>
-        <button class="iconbtn" id="su-close" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      </div>
-      <div class="su-scroll"><div class="su-inner">
-        <div class="panel" data-panel="fortime">
+  <!-- ============ NIEUWE WORKOUT ============ -->
+  <section class="overlay" id="picker" hidden>
+    <div class="ov-top"><h2>Nieuwe workout</h2><button class="iconbtn" id="picker-close" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ov-scroll"><div class="ov-inner">
+      <div class="picks" id="picks"></div>
+      <div class="lbl" id="saved-lbl" hidden>Opgeslagen</div>
+      <div class="picks" id="saved-list"></div>
+    </div></div>
+  </section>
+
+  <!-- ============ OPZETTEN ============ -->
+  <section class="overlay" id="setup" hidden>
+    <div class="ov-top"><button class="iconbtn back" id="su-back" aria-label="Terug"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h2 id="su-title">AMRAP</h2></div>
+    <div class="ov-scroll"><div class="ov-inner">
+<div class="panel" data-panel="fortime">
           <div class="field"><div class="l">Time cap <small>0:00 = geen</small></div><div class="tf" id="ft-cap"></div></div>
-          <div class="chips" data-chips="fortime"><button class="chip" data-v="0">Geen cap</button><button class="chip" data-v="600">10 min</button><button class="chip" data-v="900">15 min</button><button class="chip" data-v="1200">20 min</button></div>
+          <div class="chips-set" data-chips="fortime"><button class="chip-set" data-v="0">Geen cap</button><button class="chip-set" data-v="600">10 min</button><button class="chip-set" data-v="900">15 min</button><button class="chip-set" data-v="1200">20 min</button></div>
         </div>
         <div class="panel" data-panel="amrap" hidden>
           <div class="field"><div class="l">Duur</div><div class="tf" id="am-dur"></div></div>
-          <div class="chips" data-chips="amrap"><button class="chip" data-v="300">5 min</button><button class="chip" data-v="600">10 min</button><button class="chip" data-v="720">12 min</button><button class="chip" data-v="900">15 min</button><button class="chip" data-v="1200">20 min</button></div>
+          <div class="chips-set" data-chips="amrap"><button class="chip-set" data-v="300">5 min</button><button class="chip-set" data-v="600">10 min</button><button class="chip-set" data-v="720">12 min</button><button class="chip-set" data-v="900">15 min</button><button class="chip-set" data-v="1200">20 min</button></div>
         </div>
         <div class="panel" data-panel="emom" hidden>
           <div class="field"><div class="l">Interval</div><div class="tf" id="em-int"></div></div>
           <div class="field"><div class="l">Rondes</div><div class="step" id="em-rounds"></div></div>
-          <div class="chips" data-chips="emom"><button class="chip" data-int="60" data-r="10">10 × 1:00</button><button class="chip" data-int="60" data-r="12">12 × 1:00</button><button class="chip" data-int="60" data-r="20">20 × 1:00</button><button class="chip" data-int="90" data-r="10">10 × 1:30</button><button class="chip" data-int="120" data-r="8">8 × 2:00</button></div>
+          <div class="chips-set" data-chips="emom"><button class="chip-set" data-int="60" data-r="10">10 × 1:00</button><button class="chip-set" data-int="60" data-r="12">12 × 1:00</button><button class="chip-set" data-int="60" data-r="20">20 × 1:00</button><button class="chip-set" data-int="90" data-r="10">10 × 1:30</button><button class="chip-set" data-int="120" data-r="8">8 × 2:00</button></div>
         </div>
         <div class="panel" data-panel="tabata" hidden>
           <div class="field"><div class="l">Werk</div><div class="tf" id="tb-work"></div></div>
@@ -350,39 +293,35 @@ svg{display:block}
           <div class="field"><div class="l">Rondes</div><div class="step" id="tb-rounds"></div></div>
           <div class="field"><div class="l">Sets</div><div class="step" id="tb-sets"></div></div>
           <div class="field"><div class="l">Set-rust</div><div class="tf" id="tb-setrest"></div></div>
-          <div class="chips" data-chips="tabata"><button class="chip" data-w="20" data-r="10" data-n="8" data-s="1">20/10 × 8</button><button class="chip" data-w="30" data-r="15" data-n="8" data-s="1">30/15 × 8</button><button class="chip" data-w="40" data-r="20" data-n="8" data-s="1">40/20 × 8</button><button class="chip" data-w="20" data-r="10" data-n="8" data-s="4">4 sets</button></div>
+          <div class="chips-set" data-chips="tabata"><button class="chip-set" data-w="20" data-r="10" data-n="8" data-s="1">20/10 × 8</button><button class="chip-set" data-w="30" data-r="15" data-n="8" data-s="1">30/15 × 8</button><button class="chip-set" data-w="40" data-r="20" data-n="8" data-s="1">40/20 × 8</button><button class="chip-set" data-w="20" data-r="10" data-n="8" data-s="4">4 sets</button></div>
         </div>
         <div class="panel" data-panel="interval" hidden>
           <div class="field"><div class="l">Werk</div><div class="tf" id="iv-work"></div></div>
           <div class="field"><div class="l">Rust</div><div class="tf" id="iv-rest"></div></div>
           <div class="field"><div class="l">Rondes</div><div class="step" id="iv-rounds"></div></div>
-          <div class="chips" data-chips="interval"><button class="chip" data-w="60" data-r="60" data-n="10">1:00 / 1:00 × 10</button><button class="chip" data-w="180" data-r="60" data-n="5">3:00 / 1:00 × 5</button><button class="chip" data-w="240" data-r="120" data-n="4">4:00 / 2:00 × 4</button><button class="chip" data-w="300" data-r="60" data-n="3">5:00 / 1:00 × 3</button></div>
+          <div class="chips-set" data-chips="interval"><button class="chip-set" data-w="60" data-r="60" data-n="10">1:00 / 1:00 × 10</button><button class="chip-set" data-w="180" data-r="60" data-n="5">3:00 / 1:00 × 5</button><button class="chip-set" data-w="240" data-r="120" data-n="4">4:00 / 2:00 × 4</button><button class="chip-set" data-w="300" data-r="60" data-n="3">5:00 / 1:00 × 3</button></div>
         </div>
         <div class="panel" data-panel="countdown" hidden>
           <div class="field"><div class="l">Duur</div><div class="tf" id="cd-dur"></div></div>
-          <div class="chips" data-chips="countdown"><button class="chip" data-v="60">1 min</button><button class="chip" data-v="120">2 min</button><button class="chip" data-v="180">3 min</button><button class="chip" data-v="300">5 min</button></div>
+          <div class="chips-set" data-chips="countdown"><button class="chip-set" data-v="60">1 min</button><button class="chip-set" data-v="120">2 min</button><button class="chip-set" data-v="180">3 min</button><button class="chip-set" data-v="300">5 min</button></div>
         </div>
         <div class="panel" data-panel="custom" hidden>
           <div class="blocks" id="blocks"></div>
-          <button class="btn-add" id="add-block">+ Blok</button>
+          <button class="btn-add" id="add-block">+ Blok toevoegen</button>
           <div class="savebar"><input id="wo-name" placeholder="Naam" maxlength="40"><button id="wo-save">Opslaan</button></div>
         </div>
         <div class="summary"><span id="sum-text">Totaal</span><b id="sum-time">0:00</b></div>
-      </div></div>
-      <div class="su-bot">
-        <button class="cb" id="su-done">Klaar</button>
-        <button class="cb pri" id="su-start"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span>Start</span></button>
-      </div>
-    </section>
-  </main>
+    </div></div>
+    <div class="ov-bot"><button class="cb big" id="su-start"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span>Start</span></button></div>
+  </section>
 
   <!-- ============ INSTELLINGEN ============ -->
   <div class="sheet" id="sheet-settings" hidden>
     <div class="sheet-body">
       <div class="sheet-head"><h2>Instellingen</h2><button class="iconbtn" id="close-settings" aria-label="Sluiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="row"><div class="l">Geluid <button class="link" id="snd-test">test</button></div><button class="toggle" id="set-sound" aria-label="Geluid"></button></div>
-      <div class="row"><div class="l">Voorbereiding</div><div class="seg" id="set-prep"><button data-v="0">Uit</button><button data-v="3">3s</button><button data-v="5">5s</button><button data-v="10">10s</button></div></div>
-      <div class="row"><div class="l">3-2-1 piepjes</div><button class="toggle" id="set-ticks" aria-label="3-2-1 piepjes"></button></div>
+      <div class="row"><div class="l">Aftellen vooraf</div><div class="seg" id="set-prep"><button data-v="0">Uit</button><button data-v="3">3s</button><button data-v="5">5s</button><button data-v="10">10s</button></div></div>
+      <div class="row"><div class="l">3-2-1 bij wissels</div><button class="toggle" id="set-ticks" aria-label="3-2-1 bij wissels"></button></div>
       <div class="row"><div class="l">Scherm aan</div><button class="toggle" id="set-wake" aria-label="Scherm aan houden"></button></div>
     </div>
   </div>
@@ -596,65 +535,49 @@ function subFor(m){
   return '';
 }
 
-/* ---------- zijbalk ---------- */
-const app = $('#app');
-const mqDrawer = window.matchMedia('(max-width: 699px)');
-const isDrawer = () => mqDrawer.matches;
-function setSide(open, persist){
-  app.classList.toggle('side-open', open);
-  if (persist && !isDrawer()) store.set('cfc.side', open ? 'open' : 'closed');
-}
-function initSide(){ setSide(!isDrawer() && store.get('cfc.side', 'open') !== 'closed'); }
-(mqDrawer.addEventListener ? mqDrawer.addEventListener.bind(mqDrawer, 'change') : mqDrawer.addListener.bind(mqDrawer))(initSide);
-$('#side-toggle').addEventListener('click', () => setSide(!app.classList.contains('side-open'), true));
-$('#side-close').addEventListener('click', () => setSide(false, true));
-$('#scrim').addEventListener('click', () => setSide(false));
-
-function renderSide(){
-  $$('#modes .mi').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
-  $$('[data-sub]').forEach(s => s.textContent = subFor(s.dataset.sub));
-}
-$$('#modes .mi').forEach(b => b.addEventListener('click', () => {
-  if (b.dataset.mode === 'custom' && mode !== 'custom') { /* houd laatst geladen blokken */ }
-  selectMode(b.dataset.mode);
-}));
-function selectMode(m){
-  if (state === 'run') { toast('Reset eerst de timer'); return; }
-  mode = m; state = 'ready'; result = null;
-  store.set('cfc.mode', m);
-  renderSide(); renderSaved(); renderStage(); renderCtrl();
-  if (isDrawer()) setSide(false);
-}
-
-/* opgeslagen workouts */
+/* ---------- opgeslagen workouts ---------- */
 function savedList(){ return store.get('cfc.workouts', []); }
-function renderSaved(){
-  const host = $('#saved-list'); const list = savedList(); host.innerHTML = '';
+function setWorkoutName(n){ currentWorkoutName = n; store.set('cfc.wname', n); }
+
+/* ---------- nieuwe workout: grote keuzeknoppen ---------- */
+const PICK_ORDER = ['fortime', 'amrap', 'emom', 'tabata', 'interval', 'countdown', 'custom'];
+function renderPicker(){
+  const host = $('#picks'); host.innerHTML = '';
+  PICK_ORDER.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'pick' + (m === 'custom' ? ' own' : '');
+    b.innerHTML = '<span class="tx"><span class="t"></span><span class="s"></span></span><span class="arrow">›</span>';
+    b.querySelector('.t').textContent = MODES[m];
+    b.querySelector('.s').textContent = m === 'custom' ? 'Zelf programmeren' : subFor(m);
+    b.addEventListener('click', () => { if (m === 'custom') setWorkoutName(''); openSetup(m); });
+    host.appendChild(b);
+  });
+  const sh = $('#saved-list'); sh.innerHTML = '';
+  const list = savedList();
   $('#saved-lbl').hidden = !list.length;
   list.forEach(w => {
-    const el = document.createElement('div');
-    el.className = 'si' + (mode === 'custom' && currentWorkoutName === w.name ? ' on' : '');
-    el.innerHTML = '<button class="go"><span class="t"></span><span class="s"></span></button><button class="x" aria-label="Verwijderen">✕</button>';
-    el.querySelector('.t').textContent = w.name;
-    el.querySelector('.s').textContent = (w.blocks.length + ' BLOKKEN · ' + totLabel(planTotal(compile('custom', { blocks:w.blocks }, 0)))).toUpperCase();
-    el.querySelector('.go').addEventListener('click', () => {
-      if (state === 'run') { toast('Reset eerst de timer'); return; }
-      cfg.custom.blocks = JSON.parse(JSON.stringify(w.blocks)); setWorkoutName(w.name); saveCfg(); selectMode('custom');
-    });
-    const x = el.querySelector('.x');
+    const row = document.createElement('div'); row.className = 'saved-row';
+    row.innerHTML = '<button class="pick"><span class="tx"><span class="t"></span><span class="s"></span></span><span class="arrow">›</span></button><button class="x" aria-label="Verwijderen">✕</button>';
+    row.querySelector('.t').textContent = w.name;
+    row.querySelector('.s').textContent = w.blocks.length + ' blokken · ' + totLabel(planTotal(compile('custom', { blocks:w.blocks }, 0)));
+    row.querySelector('.pick').addEventListener('click', () => { cfg.custom.blocks = JSON.parse(JSON.stringify(w.blocks)); setWorkoutName(w.name); saveCfg(); openSetup('custom'); });
+    const x = row.querySelector('.x');
     x.addEventListener('click', () => {
       if (x.classList.contains('arm')) {
         store.set('cfc.workouts', savedList().filter(i => i.id !== w.id));
         if (currentWorkoutName === w.name) setWorkoutName('');
-        renderSaved(); renderSide(); if (state === 'ready') renderStage(); toast('Verwijderd');
+        renderPicker(); toast('Verwijderd');
       } else { x.classList.add('arm'); x.textContent = 'ZEKER?'; setTimeout(() => { x.classList.remove('arm'); x.textContent = '✕'; }, 2500); }
     });
-    host.appendChild(el);
+    sh.appendChild(row);
   });
 }
-function setWorkoutName(n){ currentWorkoutName = n; store.set('cfc.wname', n); }
+function openPicker(){ if (state === 'run') return; renderPicker(); $('#picker').hidden = false; $('#picker .ov-scroll').scrollTop = 0; }
+function closePicker(){ $('#picker').hidden = true; }
+$('#open-picker').addEventListener('click', openPicker);
+$('#picker-close').addEventListener('click', closePicker);
 
-/* ---------- aanpassen (overlay) ---------- */
+/* ---------- opzetten ---------- */
 const F = {};
 function initFields(){
   F.ftCap = timeField($('#ft-cap'), cfg.fortime.cap, v => { cfg.fortime.cap = v; refresh(); });
@@ -671,12 +594,12 @@ function initFields(){
   F.ivRounds = stepper($('#iv-rounds'), cfg.interval.rounds, 1, 99, v => { cfg.interval.rounds = v; refresh(); });
   F.cdDur = timeField($('#cd-dur'), cfg.countdown.dur, v => { cfg.countdown.dur = v; refresh(); });
 
-  $$('[data-chips="fortime"] .chip').forEach(c => c.addEventListener('click', () => { cfg.fortime.cap = +c.dataset.v; F.ftCap.set(cfg.fortime.cap); refresh(); }));
-  $$('[data-chips="amrap"] .chip').forEach(c => c.addEventListener('click', () => { cfg.amrap.dur = +c.dataset.v; F.amDur.set(cfg.amrap.dur); refresh(); }));
-  $$('[data-chips="countdown"] .chip').forEach(c => c.addEventListener('click', () => { cfg.countdown.dur = +c.dataset.v; F.cdDur.set(cfg.countdown.dur); refresh(); }));
-  $$('[data-chips="emom"] .chip').forEach(c => c.addEventListener('click', () => { cfg.emom.int = +c.dataset.int; cfg.emom.rounds = +c.dataset.r; F.emInt.set(cfg.emom.int); F.emRounds.set(cfg.emom.rounds); refresh(); }));
-  $$('[data-chips="tabata"] .chip').forEach(c => c.addEventListener('click', () => { Object.assign(cfg.tabata, { work:+c.dataset.w, rest:+c.dataset.r, rounds:+c.dataset.n, sets:+c.dataset.s }); F.tbWork.set(cfg.tabata.work); F.tbRest.set(cfg.tabata.rest); F.tbRounds.set(cfg.tabata.rounds); F.tbSets.set(cfg.tabata.sets); refresh(); }));
-  $$('[data-chips="interval"] .chip').forEach(c => c.addEventListener('click', () => { Object.assign(cfg.interval, { work:+c.dataset.w, rest:+c.dataset.r, rounds:+c.dataset.n }); F.ivWork.set(cfg.interval.work); F.ivRest.set(cfg.interval.rest); F.ivRounds.set(cfg.interval.rounds); refresh(); }));
+  $$('[data-chips="fortime"] .chip-set').forEach(c => c.addEventListener('click', () => { cfg.fortime.cap = +c.dataset.v; F.ftCap.set(cfg.fortime.cap); refresh(); }));
+  $$('[data-chips="amrap"] .chip-set').forEach(c => c.addEventListener('click', () => { cfg.amrap.dur = +c.dataset.v; F.amDur.set(cfg.amrap.dur); refresh(); }));
+  $$('[data-chips="countdown"] .chip-set').forEach(c => c.addEventListener('click', () => { cfg.countdown.dur = +c.dataset.v; F.cdDur.set(cfg.countdown.dur); refresh(); }));
+  $$('[data-chips="emom"] .chip-set').forEach(c => c.addEventListener('click', () => { cfg.emom.int = +c.dataset.int; cfg.emom.rounds = +c.dataset.r; F.emInt.set(cfg.emom.int); F.emRounds.set(cfg.emom.rounds); refresh(); }));
+  $$('[data-chips="tabata"] .chip-set').forEach(c => c.addEventListener('click', () => { Object.assign(cfg.tabata, { work:+c.dataset.w, rest:+c.dataset.r, rounds:+c.dataset.n, sets:+c.dataset.s }); F.tbWork.set(cfg.tabata.work); F.tbRest.set(cfg.tabata.rest); F.tbRounds.set(cfg.tabata.rounds); F.tbSets.set(cfg.tabata.sets); refresh(); }));
+  $$('[data-chips="interval"] .chip-set').forEach(c => c.addEventListener('click', () => { Object.assign(cfg.interval, { work:+c.dataset.w, rest:+c.dataset.r, rounds:+c.dataset.n }); F.ivWork.set(cfg.interval.work); F.ivRest.set(cfg.interval.rest); F.ivRounds.set(cfg.interval.rounds); refresh(); }));
 }
 
 const KINDS = { work:'Werk', rest:'Rust', open:'Open' };
@@ -723,39 +646,41 @@ $('#wo-save').addEventListener('click', () => {
   if (ex) ex.blocks = JSON.parse(JSON.stringify(cfg.custom.blocks));
   else list.push({ id: Date.now(), name, blocks: JSON.parse(JSON.stringify(cfg.custom.blocks)) });
   store.set('cfc.workouts', list); setWorkoutName(name); $('#wo-name').value = name;
-  renderSaved(); renderSide(); renderStage(); toast('Opgeslagen');
+  refresh(); toast('Opgeslagen');
 });
-
+let setupMode = 'amrap';
 function refresh(){
   saveCfg();
-  const plan = compile(mode, null, 0), t = planTotal(plan);
+  const m = setupMode, plan = compile(m, null, 0), t = planTotal(plan);
   let text = 'Totaal';
-  if (mode === 'fortime') text = 'Time cap';
-  else if (mode === 'emom') text = cfg.emom.rounds + ' rondes';
-  else if (mode === 'tabata') text = cfg.tabata.rounds * cfg.tabata.sets + ' rondes';
-  else if (mode === 'interval') text = cfg.interval.rounds + ' rondes';
-  else if (mode === 'custom') text = cfg.custom.blocks.length + ' blokken';
+  if (m === 'fortime') text = 'Time cap';
+  else if (m === 'emom') text = cfg.emom.rounds + ' rondes';
+  else if (m === 'tabata') text = cfg.tabata.rounds * cfg.tabata.sets + ' rondes';
+  else if (m === 'interval') text = cfg.interval.rounds + ' rondes';
+  else if (m === 'custom') text = cfg.custom.blocks.length + ' blokken';
   $('#sum-text').textContent = text;
-  $('#sum-time').textContent = mode === 'fortime' ? (cfg.fortime.cap ? fmt(cfg.fortime.cap) : '—') : totLabel(t);
-  renderSide();
-  if (state === 'ready') renderStage();
+  $('#sum-time').textContent = m === 'fortime' ? (cfg.fortime.cap ? fmt(cfg.fortime.cap) : '—') : totLabel(t);
+  if (state === 'ready' && mode === m) renderStage();
 }
-function openSetup(){
-  $('#su-title').textContent = MODES[mode];
-  $$('.panel').forEach(p => p.hidden = p.dataset.panel !== mode);
-  if (mode === 'custom') { renderBlocks(); $('#wo-name').value = currentWorkoutName; }
+function openSetup(m){
+  setupMode = m;
+  $('#su-title').textContent = MODES[m];
+  $$('.panel').forEach(p => p.hidden = p.dataset.panel !== m);
+  if (m === 'custom') { renderBlocks(); $('#wo-name').value = currentWorkoutName; }
   refresh();
   $('#setup').hidden = false;
-  $('.su-scroll').scrollTop = 0;
+  $('#setup .ov-scroll').scrollTop = 0;
 }
-function closeSetup(){ $('#setup').hidden = true; renderSaved(); }
-$('#su-close').addEventListener('click', closeSetup);
-$('#su-done').addEventListener('click', closeSetup);
-$('#su-start').addEventListener('click', () => { closeSetup(); startWorkout(); });
+$('#su-back').addEventListener('click', () => { $('#setup').hidden = true; renderPicker(); });
+$('#su-start').addEventListener('click', () => {
+  mode = setupMode; store.set('cfc.mode', mode);
+  $('#setup').hidden = true; closePicker();
+  state = 'ready'; startWorkout();
+});
 
 /* ---------- instellingen ---------- */
 const sheet = $('#sheet-settings');
-$('#open-settings').addEventListener('click', () => { sheet.hidden = false; if (isDrawer()) setSide(false); });
+$('#open-settings').addEventListener('click', () => { sheet.hidden = false; });
 $('#close-settings').addEventListener('click', () => { sheet.hidden = true; });
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.hidden = true; });
 function renderSettings(){
@@ -770,44 +695,49 @@ $('#set-wake').addEventListener('click', () => { settings.wake = !settings.wake;
 $$('#set-prep button').forEach(b => b.addEventListener('click', () => { settings.prep = +b.dataset.v; saveSettings(); renderSettings(); }));
 $('#snd-test').addEventListener('click', e => { e.stopPropagation(); Snd.init(); if (!settings.sound) { toast('Geluid staat uit'); return; } Snd.demo(); setTimeout(() => Snd.done(), 4200); });
 
-/* ---------- stage-weergave ---------- */
-const D = { stage:$('#stage'), label:$('#t-label'), digits:$('#t-digits'), m1:$('#m1'), m1k:$('#m1k'), m1v:$('#m1v'), sep:$('#msep'),
-  m2:$('#m2'), m2k:$('#m2k'), m2v:$('#m2v'), fill:$('#p-fill'), pl:$('#p-left'), pm:$('#p-mid'), pr:$('#p-right'), ctrl:$('#ctrl'), splits:$('#t-splits') };
+/* ---------- klokweergave ---------- */
+const D = { stage:$('#stage'), label:$('#t-label'), digits:$('#t-digits'), fill:$('#p-fill'), sub:$('#t-sub'),
+  c1:$('#c1'), c1k:$('#c1k'), c1v:$('#c1v'), c2:$('#c2'), c2k:$('#c2k'), c2v:$('#c2v'), ctrl:$('#ctrl') };
+function setText(el, v){ if (el._t !== v) { el._t = v; el.textContent = v; } }
+function setHTML(el, v){ if (el._h !== v) { el._h = v; el.innerHTML = v; } }
 function setDigits(txt){
   if (D.digits._t === txt) return; D.digits._t = txt;
+  D.digits.classList.remove('well');
   D.digits.innerHTML = txt.split('').map(ch => ch === ':' ? '<i>:</i>' : '<b>' + ch + '</b>').join('');
   D.digits.classList.toggle('long', txt.length > 5);
 }
+function setWell(){
+  if (D.digits._t === 'WELL') return; D.digits._t = 'WELL';
+  D.digits.classList.remove('long'); D.digits.textContent = 'WELL DONE';
+  void D.digits.offsetWidth; D.digits.classList.add('well');
+}
 function setPhase(ph){
-  const cls = 'ph-' + ph + (state === 'run' ? (T.paused ? ' paused' : ' running') : '');
+  const cls = 'ph-' + ph + ' st-' + state + (state === 'run' ? (T.paused ? ' paused' : ' running') : '');
   if (D.stage._c !== cls) { D.stage._c = cls; D.stage.className = cls; }
 }
-function setText(el, v){ if (el._t !== v) { el._t = v; el.textContent = v; } }
-function setHTML(el, v){ if (el._h !== v) { el._h = v; el.innerHTML = v; } }
-function meta1(k, v, small){
-  const show = !!k; D.m1.hidden = !show; D.sep.hidden = !show;
-  if (show) { setText(D.m1k, k.toUpperCase()); setHTML(D.m1v, v + (small ? '<small>' + small + '</small>' : '')); }
+function chip1(k, v, small, tappable){
+  const show = !!k; D.c1.hidden = !show; if (!show) return;
+  D.c1.disabled = !tappable; D.c1.tabIndex = tappable ? 0 : -1;
+  D.c1.style.pointerEvents = tappable ? '' : 'none';
+  D.c1.classList.toggle('tap', !!tappable);
+  setText(D.c1k, k.toUpperCase()); setHTML(D.c1v, v + (small ? '<small>' + small + '</small>' : ''));
 }
-function meta2(k, v){ setText(D.m2k, k.toUpperCase()); setText(D.m2v, v); }
-function setProg(frac, left, mid, right){
-  D.fill.style.width = (Math.max(0, Math.min(1, frac)) * 100).toFixed(2) + '%';
-  setText(D.pl, left.toUpperCase()); setText(D.pm, (mid || '').toUpperCase()); setText(D.pr, (right || '').toUpperCase());
-}
-function roundsModeMeta(m){ return m === 'fortime' || m === 'amrap'; }
+function chip2(k, v){ D.c2.hidden = !k; if (k) { setText(D.c2k, k.toUpperCase()); setText(D.c2v, v); } }
+function roundsMode(m){ return m === 'fortime' || m === 'amrap'; }
 
 function renderReady(){
   const plan = compile(mode, null, 0), first = plan[0], tot = planTotal(plan);
   setPhase('idle');
   setText(D.label, (modeTitle(mode) + ' · gereed').toUpperCase());
   setDigits(first ? fmt(first.kind === 'open' ? 0 : first.dur / 1000, true) : '00:00');
-  if (roundsModeMeta(mode)) meta1('Ronde', '00');
-  else if (mode === 'countdown') meta1(null);
-  else if (mode === 'custom') meta1('Blokken', pad(cfg.custom.blocks.length));
-  else meta1('Rondes', pad(mode === 'emom' ? cfg.emom.rounds : mode === 'tabata' ? cfg.tabata.rounds * cfg.tabata.sets : cfg.interval.rounds));
-  if (mode === 'fortime') meta2('Cap', cfg.fortime.cap ? fmt(cfg.fortime.cap, true) : '—');
-  else meta2('Totaal', totLabel(tot, true));
-  setProg(0, '00:00 verstreken', '', mode === 'fortime' ? (cfg.fortime.cap ? fmt(cfg.fortime.cap, true) : 'geen cap') : totLabel(tot, true));
-  setText(D.splits, '');
+  if (roundsMode(mode)) chip1('Ronde', '00');
+  else if (mode === 'countdown') chip1(null);
+  else if (mode === 'custom') chip1('Blokken', pad(cfg.custom.blocks.length));
+  else chip1('Rondes', pad(mode === 'emom' ? cfg.emom.rounds : mode === 'tabata' ? cfg.tabata.rounds * cfg.tabata.sets : cfg.interval.rounds));
+  if (mode === 'fortime') chip2('Cap', cfg.fortime.cap ? fmt(cfg.fortime.cap, true) : '—');
+  else chip2('Totaal', totLabel(tot, true));
+  D.fill.style.width = '0%';
+  setText(D.sub, '');
 }
 function renderRun(){
   const t = T.paused ? T.pauseAt : now(); const s = T.plan[T.i]; if (!s) return;
@@ -817,53 +747,51 @@ function renderRun(){
   const dir = T.paused ? 'pauze' : s.kind === 'prep' ? '' : s.kind === 'open' ? 'omhoog' : 'resterend';
   setText(D.label, [s.kind === 'prep' ? 'Klaar maken' : s.label, s.tag, dir].filter(Boolean).join(' · ').toUpperCase());
   const ref = s.kind === 'prep' && T.plan[1] ? T.plan[1] : s;
-  if (roundsModeMeta(T.mode)) meta1('Ronde', pad(T.rounds.length));
-  else if (ref.rounds > 1) meta1('Ronde', pad(ref.round), '/' + pad(ref.rounds));
-  else if (ref.nb > 1) meta1('Blok', pad(ref.bi + 1), '/' + pad(ref.nb));
-  else meta1(null);
-  if (T.mode === 'fortime') meta2('Cap', T.total.sec ? fmt(T.total.sec, true) : '—');
-  else meta2('Totaal', totLabel(T.total, true));
+  if (roundsMode(T.mode)) chip1('Ronde', pad(T.rounds.length), '', !T.paused && s.kind !== 'prep');
+  else if (ref.rounds > 1) chip1('Ronde', pad(ref.round), '/' + pad(ref.rounds));
+  else if (ref.nb > 1) chip1('Blok', pad(ref.bi + 1), '/' + pad(ref.nb));
+  else chip1(null);
+  if (T.mode === 'fortime') chip2('Cap', T.total.sec ? fmt(T.total.sec, true) : '—');
+  else chip2('Totaal', totLabel(T.total, true));
   const we = workElapsed(t);
-  const nx = T.plan[T.i + 1];
-  const mid = nx ? 'Volgende · ' + nx.label + (nx.dur ? ' ' + fmt(nx.dur / 1000) : '') : '';
-  setProg(T.total.sec ? we / T.total.sec : 0, fmt(we, true) + ' verstreken', mid, T.mode === 'fortime' && !T.total.sec ? 'geen cap' : totLabel(T.total, true));
+  D.fill.style.width = (T.total.sec ? Math.min(1, we / T.total.sec) * 100 : 0).toFixed(2) + '%';
+  if (!roundsMode(T.mode)) {
+    const nx = T.plan[T.i + 1];
+    setText(D.sub, nx ? ('Volgende · ' + nx.label + (nx.dur ? ' ' + fmt(nx.dur / 1000) : '')).toUpperCase() : '');
+  }
 }
 function renderDone(){
   const r = result;
   setPhase('done');
   setText(D.label, (modeTitle(r.mode) + ' · ' + (r.how === 'cap' ? 'time cap' : 'klaar')).toUpperCase());
-  setDigits(fmt(r.total, true));
-  if (roundsModeMeta(r.mode)) meta1('Rondes', pad(r.rounds.length));
-  else if (r.segs > 1) meta1('Segment', pad(r.done), '/' + pad(r.segs));
-  else meta1(null);
-  if (r.rounds.length > 1) meta2('Snelste', fmt(Math.min.apply(null, r.rounds.map(x => x.split)), true));
-  else if (r.mode === 'fortime') meta2('Cap', r.plan.sec ? fmt(r.plan.sec, true) : '—');
-  else meta2('Totaal', totLabel(r.plan, true));
-  setProg(r.plan.sec ? r.total / r.plan.sec : (r.how === 'manual' ? 1 : 0), fmt(r.total, true) + ' verstreken', '', r.mode === 'fortime' && !r.plan.sec ? 'geen cap' : totLabel(r.plan, true));
-  D.splits.innerHTML = r.rounds.map((x, i) => 'R' + (i + 1) + ' <b>' + fmt(x.split) + '</b>').join('&nbsp;&nbsp;·&nbsp;&nbsp;');
-  D.splits._t = null;
+  setWell();
+  if (roundsMode(r.mode)) chip1('Rondes', pad(r.rounds.length));
+  else chip1(null);
+  chip2('Tijd', fmt(r.total, true));
+  D.fill.style.width = '100%';
+  D.sub.innerHTML = r.rounds.length > 1 ? r.rounds.map((x, i) => 'R' + (i + 1) + ' <b>' + fmt(x.split) + '</b>').join('&nbsp;&nbsp;·&nbsp;&nbsp;') : '';
+  D.sub._t = null;
 }
 function renderStage(){ if (state === 'ready') renderReady(); else if (state === 'run') renderRun(); else renderDone(); }
 
-let resetArmed = false, resetT = null;
+const IC2 = {
+  play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" fill="currentColor"/></svg>',
+  stop:'<svg viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" fill="currentColor"/></svg>',
+  again:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 3.5v4.5H9"/></svg>'
+};
 function renderCtrl(){
-  const b = [];
-  if (state === 'ready') { b.push(['setup', 'Aanpassen', IC.tune]); b.push(['start', 'Start', IC.play, 'pri']); }
-  else if (state === 'run') {
-    b.push(['pause', T.paused ? 'Hervat' : 'Pauze', T.paused ? IC.play : IC.pause, T.paused ? 'go' : '']);
-    b.push(['reset', resetArmed ? 'Zeker?' : 'Reset', IC.reset, resetArmed ? 'warn' : '']);
-    if (T.mode === 'fortime') { b.push(['finish', 'Klaar', IC.check]); b.push(['round', 'Ronde', IC.plus, 'pri']); }
-    else if (T.mode === 'amrap') b.push(['round', 'Ronde', IC.plus, 'pri']);
-    else b.push(['next', 'Volgende', IC.next]);
-  } else { b.push(['toready', 'Reset', IC.reset]); b.push(['start', 'Opnieuw', IC.play, 'pri']); }
-  D.ctrl.innerHTML = b.map(x => '<button class="cb ' + (x[3] || '') + '" data-act="' + x[0] + '">' + x[2] + '<span>' + x[1].toUpperCase() + '</span></button>').join('');
+  let b = [];
+  if (state === 'ready') b = [['start', 'Start', IC2.play, 'big']];
+  else if (state === 'run') b = T.paused ? [['resume', 'Hervatten', IC2.play, 'go'], ['stop', 'Stoppen', IC2.stop, 'stop']] : [['pause', 'Pauze', IC2.pause, '']];
+  else b = [['start', 'Opnieuw', IC2.again, 'big']];
+  D.ctrl.innerHTML = b.map(x => '<button class="cb ' + x[3] + '" data-act="' + x[0] + '">' + x[2] + '<span>' + x[1] + '</span></button>').join('');
 }
 D.ctrl.addEventListener('click', e => {
   const btn = e.target.closest('[data-act]'); if (!btn) return;
-  ({ setup:openSetup, start:startWorkout, pause:togglePause, reset:resetPressed, finish:() => finish('manual'),
-     round:addRound, next:skip, toready:toReady })[btn.dataset.act]();
+  ({ start:startWorkout, pause:togglePause, resume:togglePause, stop:stopWorkout })[btn.dataset.act]();
 });
-D.digits.addEventListener('click', () => { if (state === 'ready') openSetup(); });
+D.c1.addEventListener('click', () => { if (state === 'run' && roundsMode(T.mode)) addRound(); });
 
 /* ---------- timer-engine ---------- */
 const T = { plan:[], i:0, segStart:0, running:false, paused:false, pauseAt:0, workStart:0, rounds:[], lastWhole:null, timer:null, mode:'', total:{ sec:0, open:false } };
@@ -872,20 +800,19 @@ const now = () => performance.now();
 function startWorkout(){
   const plan = compile(mode, null, settings.prep);
   const tot = planTotal(plan);
-  if (!plan.some(s => s.kind !== 'prep') || (tot.sec === 0 && !plan.some(s => s.kind === 'open'))) { toast('Stel eerst een tijd in'); return; }
+  if (!plan.some(s => s.kind !== 'prep') || (tot.sec === 0 && !plan.some(s => s.kind === 'open'))) { toast('Stel eerst een tijd in'); openPicker(); return; }
   Object.assign(T, { plan, i:0, rounds:[], paused:false, running:true, lastWhole:null, mode, total:tot });
   T.segStart = now(); T.workStart = plan[0].kind === 'prep' ? 0 : T.segStart;
-  state = 'run'; result = null; resetArmed = false;
+  state = 'run'; result = null;
   Snd.init(); keepAwake();
-  if (app.classList.contains('side-open')) { T.sideWas = !isDrawer(); setSide(false); }
   enterSegment(true);
   clearInterval(T.timer); T.timer = setInterval(tick, 50);
-  renderCtrl(); renderRun(); setText(D.splits, '');
+  renderCtrl(); renderRun(); setText(D.sub, '');
 }
 function enterSegment(first){
   const s = T.plan[T.i]; T.lastWhole = null;
   if (s.kind !== 'prep' && !T.workStart) T.workStart = T.segStart;
-  if (first) { if (s.kind === 'prep') Snd.tick(); else Snd.go(); return; }
+  if (first) { if (s.kind !== 'prep') Snd.go(); return; }   /* aftellen vooraf: geen piep bij de start, alleen 3-2-1 */
   const prev = T.plan[T.i - 1];
   if (prev && prev.kind === 'prep') Snd.go();
   else if (s.kind === 'rest') Snd.rest();
@@ -895,12 +822,6 @@ function advance(){
   const s = T.plan[T.i];
   T.segStart = s.dur > 0 ? T.segStart + s.dur : now();
   T.i++; enterSegment(false);
-}
-function skip(){
-  if (!T.running) return;
-  if (T.paused) togglePause();
-  if (T.i >= T.plan.length - 1) { finish('manual'); return; }
-  T.segStart = now(); T.i++; enterSegment(false); renderRun();
 }
 function tick(){
   if (!T.running || T.paused) return;
@@ -923,47 +844,40 @@ function togglePause(){
   renderCtrl(); renderRun();
 }
 function addRound(){
-  if (!T.running) return;
-  const total = workElapsed(T.paused ? T.pauseAt : now());
-  if (!T.workStart) return;
+  if (!T.running || T.paused || !T.workStart) return;
+  const total = workElapsed(now());
   const prev = T.rounds.length ? T.rounds[T.rounds.length - 1].total : 0;
   T.rounds.push({ total, split: total - prev });
   Snd.round();
-  D.splits.innerHTML = 'R' + T.rounds.length + ' <b>' + fmt(total) + '</b>' + (T.rounds.length > 1 ? '&nbsp;&nbsp;(+' + fmt(total - prev) + ')' : '');
+  D.sub.innerHTML = 'R' + T.rounds.length + ' <b>' + fmt(total) + '</b>' + (T.rounds.length > 1 ? '&nbsp;&nbsp;(+' + fmt(total - prev) + ')' : '');
+  D.sub._t = null;
   renderRun();
 }
-function resetPressed(){
-  if (resetArmed) { clearTimeout(resetT); resetArmed = false; toReady(); return; }
-  resetArmed = true; renderCtrl();
-  clearTimeout(resetT); resetT = setTimeout(() => { resetArmed = false; if (state === 'run') renderCtrl(); }, 2500);
+/* Stoppen: bij For Time is dat de finish, bij de rest terug naar gereed */
+function stopWorkout(){
+  if (T.mode === 'fortime' && T.workStart) finish('manual');
+  else toReady();
 }
 function toReady(){
   clearInterval(T.timer); T.running = false; T.paused = false; releaseWake();
   state = 'ready'; result = null;
-  if (T.sideWas && !isDrawer()) setSide(true);
-  T.sideWas = false;
-  renderStage(); renderCtrl(); setText(D.splits, '');
+  renderStage(); renderCtrl();
 }
 function finish(how){
   clearInterval(T.timer);
   const t = T.paused ? T.pauseAt : now();
   const total = workElapsed(t);
-  const segs = T.plan.filter(s => s.kind !== 'prep').length;
-  const done = T.plan.slice(0, T.i + 1).filter(s => s.kind !== 'prep').length;
   T.running = false; T.paused = false; releaseWake();
-  result = { how, total, rounds:T.rounds.slice(), mode:T.mode, plan:T.total, segs, done };
+  result = { how, total, rounds:T.rounds.slice(), mode:T.mode, plan:T.total };
   state = 'done';
   Snd.done();
   renderStage(); renderCtrl();
 }
 
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  if (state === 'run') {
-    if (e.code === 'Space') { e.preventDefault(); togglePause(); }
-    else if (e.key === 'r' || e.key === 'Enter') { if (roundsModeMeta(T.mode)) addRound(); }
-    else if (e.key === 'n') skip();
-  } else if (e.code === 'Space' && $('#setup').hidden) { e.preventDefault(); startWorkout(); }
+  if (e.target.tagName === 'INPUT' || !$('#picker').hidden || !$('#setup').hidden) return;
+  if (e.code === 'Space') { e.preventDefault(); if (state === 'run') togglePause(); else startWorkout(); }
+  else if ((e.key === 'r' || e.key === 'Enter') && state === 'run') addRound();
 });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && T.running) { keepAwake(); tick(); } });
 
@@ -973,7 +887,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 /* ---------- init ---------- */
-initFields(); renderSettings(); initSide(); renderSide(); renderSaved(); renderStage(); renderCtrl();
+initFields(); renderSettings(); renderStage(); renderCtrl();
 })();
 </script>
 </body>

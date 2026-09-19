@@ -152,25 +152,36 @@ svg{display:block}
 .cb.warn svg{color:var(--accent-2)}
 @container (max-width:560px){
   .phase{letter-spacing:.3em}
-  .prog-meta{flex-wrap:wrap;row-gap:8px}
-  .prog-meta span:nth-child(2){order:3;flex-basis:100%;text-align:center;color:var(--soft)}
-  .ctrl{flex-wrap:wrap;width:100%}
-  .cb{flex:1 1 40%}
-  .cb.pri{flex-basis:100%;order:-1;height:64px}
+}
+@media (orientation:portrait){
+  @container (max-width:560px){
+    .prog-meta{flex-wrap:wrap;row-gap:8px}
+    .prog-meta span:nth-child(2){order:3;flex-basis:100%;text-align:center;color:var(--soft)}
+    .ctrl{flex-wrap:wrap;width:100%}
+    .cb{flex:1 1 40%}
+    .cb.pri{flex-basis:100%;order:-1;height:64px}
+  }
 }
 .splits{min-height:18px;max-width:100%;overflow-x:auto;white-space:nowrap;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.2em;color:var(--muted);text-align:center;padding:0 8px}
 .splits b{color:var(--text);font-weight:600}
 
 @media (max-height:520px) and (orientation:landscape){
-  .stage-top{min-height:48px;padding-top:6px}
-  .clock{gap:8px;padding-bottom:10px;justify-content:flex-start}
-  .digits{font-size:min(34cqw,calc(100svh - 220px),330px)}
-  .digits.long{font-size:min(24cqw,calc(100svh - 220px),260px)}
-  .meta .v{font-size:clamp(26px,4.2cqw,44px)}
-  .prog-meta{margin-top:6px}
-  .cb{height:48px}
+  .stage-top{min-height:40px;padding-top:4px}
+  .stage-top .iconbtn{width:38px;height:38px}
+  .mini-logo{height:24px}
+  .clock{gap:6px;padding-bottom:8px}
+  .phase{font-size:13px}
+  .digits{font-size:min(34cqw,calc(100svh - 212px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),330px)}
+  .digits.long{font-size:min(24cqw,calc(100svh - 212px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),260px)}
+  .meta .v{font-size:clamp(24px,4cqw,40px)}
+  .meta .k{font-size:13px}
+  .prog{width:min(92cqw,1100px)}
+  .prog-meta{margin-top:5px;font-size:12px}
+  .ctrl{width:100%;max-width:820px;flex-wrap:nowrap;gap:8px}
+  .cb{flex:1 1 0;min-width:0;height:44px;padding:0 8px;gap:.5em;letter-spacing:.14em;font-size:clamp(14px,2.3cqw,20px)}
   .splits{display:none}
 }
+.clock{justify-content:safe center;overflow-y:auto;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){.running .dot,.paused .digits{animation:none}#side{transition:none}}
 
 /* ================= AANPASSEN (overlay) ================= */
@@ -185,13 +196,23 @@ svg{display:block}
 .su-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 24px 24px}
 .su-inner{max-width:620px}
 .panel[hidden]{display:none}
-.field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .field .l{font-family:var(--cond);font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--soft)}
 .field .l small{font-size:12px;letter-spacing:.2em;color:var(--dim);margin-left:6px}
 .tf{display:flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;padding:4px 8px}
 .tf input{width:50px;text-align:center;background:transparent;border:0;font-family:var(--display);font-size:28px;padding:2px 0;-moz-appearance:textfield;appearance:textfield}
 .tf input::-webkit-outer-spin-button,.tf input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .tf .colon{font-family:var(--display);font-size:26px;color:var(--accent)}
+.tstep{display:flex;align-items:stretch;flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;overflow:hidden}
+.tstep button{width:52px;height:52px;display:grid;place-items:center;font-size:26px;line-height:1;color:var(--soft);touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.tstep button:active{background:var(--surface-2);color:var(--text)}
+.tstep input{width:94px;text-align:center;background:transparent;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:0;
+  font-family:var(--display);font-size:30px;color:var(--text);padding:0;-webkit-user-select:none;user-select:none;cursor:pointer}
+.tstep input.num{width:94px}
+.tstep input:not([readonly]){background:var(--surface-2);-webkit-user-select:text;user-select:text;cursor:text}
+.tstep input::placeholder{color:var(--dim)}
+.brow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px}
+.bl{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
 .step{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;overflow:hidden}
 .step button{width:44px;height:46px;font-size:22px;color:var(--muted)}
 .step button:active{background:var(--surface-2);color:var(--text)}
@@ -446,31 +467,56 @@ function fmt(sec, padMin){
 }
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800); }
 
+function stepSize(v, dir){ const x = dir > 0 ? v : v - 1; return x < 60 ? 5 : x < 300 ? 15 : x < 1200 ? 30 : 60; }
+function holdRepeat(btn, fn){
+  let t1 = null, t2 = null;
+  const stop = () => { clearTimeout(t1); clearInterval(t2); t1 = t2 = null; };
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); stop(); fn(); t1 = setTimeout(() => { t2 = setInterval(fn, 90); }, 420); });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, stop));
+  btn.addEventListener('click', e => { if (e.detail === 0) fn(); });
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+}
+/* typen: "12:30", of zoals een magnetron: 45 = 0:45, 130 = 1:30, 2000 = 20:00 */
+function parseTime(str){
+  str = String(str).trim(); if (!str) return null;
+  if (str.indexOf(':') >= 0) { const p = str.split(':'); return (parseInt(p[0], 10) || 0) * 60 + Math.min(59, parseInt(p[1], 10) || 0); }
+  const d = str.replace(/\D/g, ''); if (!d) return null;
+  if (d.length <= 2) return parseInt(d, 10);
+  return parseInt(d.slice(0, -2), 10) * 60 + Math.min(59, parseInt(d.slice(-2), 10));
+}
+function makeStep(el, cls, label){
+  el.className = 'tstep';
+  el.innerHTML = '<button type="button" aria-label="Minder">−</button><input class="' + cls + '" type="text" inputmode="numeric" enterkeyhint="done" aria-label="' + label + '" readonly><button type="button" aria-label="Meer">+</button>';
+  const b = el.querySelectorAll('button');
+  return { dec:b[0], inc:b[1], inp:el.querySelector('input') };
+}
+function typeable(inp, current, commit){
+  inp.addEventListener('click', () => { if (!inp.readOnly) return; inp.readOnly = false; inp.placeholder = inp.value; inp.value = ''; inp.focus(); });
+  inp.addEventListener('blur', () => { if (inp.readOnly) return; const val = inp.value; inp.readOnly = true; inp.placeholder = ''; commit(val); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+}
 function timeField(el, value, onChange){
-  el.innerHTML = '<input type="number" inputmode="numeric" min="0" max="599" aria-label="minuten"><span class="colon">:</span><input type="number" inputmode="numeric" min="0" max="59" aria-label="seconden">';
-  const [mi, si] = el.querySelectorAll('input');
-  const set = sec => { sec = Math.max(0, Math.round(sec)); mi.value = Math.floor(sec / 60); si.value = pad(sec % 60); };
-  const get = () => (parseInt(mi.value, 10) || 0) * 60 + Math.min(59, parseInt(si.value, 10) || 0);
-  set(value);
-  [mi, si].forEach(i => {
-    i.addEventListener('focus', () => i.select());
-    i.addEventListener('change', () => { set(get()); onChange && onChange(get()); });
-    i.addEventListener('input', () => onChange && onChange(get()));
-  });
-  return { get, set };
+  const { dec, inc, inp } = makeStep(el, 'time', 'Tijd');
+  let v = Math.max(0, Math.round(value));
+  const show = () => { inp.value = fmt(v); };
+  const set = (sec, fire) => { v = Math.max(0, Math.min(5999, Math.round(sec))); show(); if (fire !== false && onChange) onChange(v); };
+  show();
+  holdRepeat(dec, () => set(v - stepSize(v, -1)));
+  holdRepeat(inc, () => set(v + stepSize(v, 1)));
+  typeable(inp, () => v, val => { const p = parseTime(val); if (p === null) show(); else set(p); });
+  return { get: () => v, set: sec => set(sec, false) };
 }
 function stepper(el, value, min, max, onChange){
-  el.innerHTML = '<button type="button" aria-label="minder">−</button><input type="number" inputmode="numeric"><button type="button" aria-label="meer">+</button>';
-  const [dec, inc] = el.querySelectorAll('button'); const inp = el.querySelector('input');
-  const clamp = v => Math.min(max, Math.max(min, isNaN(v) ? min : v));
-  const get = () => clamp(parseInt(inp.value, 10));
-  const set = v => { inp.value = clamp(v); onChange && onChange(get()); };
-  inp.value = clamp(value);
-  dec.addEventListener('click', () => set(get() - 1));
-  inc.addEventListener('click', () => set(get() + 1));
-  inp.addEventListener('change', () => set(get()));
-  inp.addEventListener('focus', () => inp.select());
-  return { get, set };
+  const { dec, inc, inp } = makeStep(el, 'num', 'Aantal');
+  const clamp = x => Math.min(max, Math.max(min, isNaN(x) ? min : x));
+  let v = clamp(value);
+  const show = () => { inp.value = v; };
+  const set = (x, fire) => { v = clamp(x); show(); if (fire !== false && onChange) onChange(v); };
+  show();
+  holdRepeat(dec, () => set(v - 1));
+  holdRepeat(inc, () => set(v + 1));
+  typeable(inp, () => v, val => { const n = parseInt(String(val).replace(/\D/g, ''), 10); if (isNaN(n)) show(); else set(n); });
+  return { get: () => v, set: x => set(x, false) };
 }
 
 const IC = {
@@ -641,12 +687,10 @@ function renderBlocks(){
     el.innerHTML =
       '<div class="blk-head"><span class="idx">' + (i + 1) + '</span><input placeholder="Naam" maxlength="30">' +
       '<button class="mv up" aria-label="Omhoog">↑</button><button class="mv down" aria-label="Omlaag">↓</button><button class="mv del" aria-label="Verwijderen">✕</button></div>' +
-      '<div class="blk-grid">' +
-        '<div class="f full"><label>Type</label><div class="kindsel"></div></div>' +
-        '<div class="f"><label class="durlabel"></label><div class="tf dur"></div></div>' +
-        '<div class="f"><label>Rust erna</label><div class="tf rest"></div></div>' +
-        '<div class="f"><label>Rondes</label><div class="step rounds"></div></div>' +
-      '</div>';
+      '<div class="kindsel"></div>' +
+      '<div class="brow"><span class="bl durlabel"></span><div class="dur"></div></div>' +
+      '<div class="brow"><span class="bl">Rust erna</span><div class="rest"></div></div>' +
+      '<div class="brow"><span class="bl">Rondes</span><div class="rounds"></div></div>';
     const nameI = el.querySelector('.blk-head input'); nameI.value = b.name;
     nameI.addEventListener('input', () => { b.name = nameI.value; refresh(); });
     const ks = el.querySelector('.kindsel');
@@ -833,7 +877,7 @@ function startWorkout(){
   T.segStart = now(); T.workStart = plan[0].kind === 'prep' ? 0 : T.segStart;
   state = 'run'; result = null; resetArmed = false;
   Snd.init(); keepAwake();
-  if (isDrawer()) setSide(false);
+  if (app.classList.contains('side-open')) { T.sideWas = !isDrawer(); setSide(false); }
   enterSegment(true);
   clearInterval(T.timer); T.timer = setInterval(tick, 50);
   renderCtrl(); renderRun(); setText(D.splits, '');
@@ -896,6 +940,8 @@ function resetPressed(){
 function toReady(){
   clearInterval(T.timer); T.running = false; T.paused = false; releaseWake();
   state = 'ready'; result = null;
+  if (T.sideWas && !isDrawer()) setSide(true);
+  T.sideWas = false;
   renderStage(); renderCtrl(); setText(D.splits, '');
 }
 function finish(how){

@@ -1,5 +1,5 @@
 /* CFC WOD Timer: werkt offline. Verhoog VERSION bij elke update, dan halen telefoons de nieuwe versie op. */
-const VERSION = 'cfc-timer-v4';
+const VERSION = 'cfc-timer-v5';
 const FILES = [
   "./",
   "./fonts/Anton-400-latin-ext.woff2",

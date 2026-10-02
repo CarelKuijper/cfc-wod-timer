@@ -220,6 +220,7 @@ button.chip{font:inherit;color:inherit}
 .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .sheet-head h2{font-size:30px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.hint{margin:10px 0 0;font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.1em;line-height:1.5;color:var(--dim);text-transform:uppercase}
 .row .l{flex:1;min-width:0;font-family:var(--cond);font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--soft)}
 .link{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.2em;color:var(--muted);text-decoration:underline;text-underline-offset:4px;margin-left:10px;padding:4px}
 .seg{display:flex;border:1px solid var(--line-2);border-radius:3px;overflow:hidden;flex:none}
@@ -323,6 +324,9 @@ button.chip{font:inherit;color:inherit}
       <div class="row"><div class="l">Aftellen vooraf</div><div class="seg" id="set-prep"><button data-v="0">Uit</button><button data-v="3">3s</button><button data-v="5">5s</button><button data-v="10">10s</button></div></div>
       <div class="row"><div class="l">3-2-1 bij wissels</div><button class="toggle" id="set-ticks" aria-label="3-2-1 bij wissels"></button></div>
       <div class="row"><div class="l">Scherm aan</div><button class="toggle" id="set-wake" aria-label="Scherm aan houden"></button></div>
+      <div class="row"><div class="l">Volume</div><div class="seg" id="set-vol"><button data-v="0.8">Zacht</button><button data-v="1.4">Normaal</button><button data-v="2.2">Hard</button></div></div>
+      <div class="row"><div class="l">Muziek blijft spelen</div><button class="toggle" id="set-mix" aria-label="Muziek blijft spelen"></button></div>
+      <p class="hint" id="mix-hint"></p>
     </div>
   </div>
 </div>
@@ -340,7 +344,8 @@ const store = {
   get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
   set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
 };
-const settings = Object.assign({ sound:true, prep:10, ticks:true, wake:true, volume:1 }, store.get('cfc.settings', {}));
+const settings = Object.assign({ sound:true, prep:10, ticks:true, wake:true, volume:1.4, mix:true }, store.get('cfc.settings', {}));
+if (settings.volume === 1) settings.volume = 1.4;   /* oude instelling meenemen */
 const saveSettings = () => store.set('cfc.settings', settings);
 
 /* ---------- geluid ---------- */
@@ -352,7 +357,7 @@ const Snd = {
   },
   tone(freq, start, dur, type, gain){
     if (!settings.sound || !this.ctx) return;
-    type = type || 'square'; gain = (gain || 0.22) * settings.volume;
+    type = type || 'square'; gain = Math.min(0.85, (gain || 0.22) * settings.volume);
     const t = this.ctx.currentTime + start;
     const o = this.ctx.createOscillator(), g = this.ctx.createGain();
     o.type = type; o.frequency.value = freq;
@@ -372,22 +377,32 @@ const Snd = {
   done(){ [784, 988, 1175].forEach((f, i) => this.tone(f, i * 0.17, 0.15)); this.tone(1568, 0.52, 1.1, 'square', 0.3); },
   demo(){ this.tick(); this.tone(880, 1, 0.12); this.tone(880, 2, 0.12); this.tone(1320, 3, 0.75, 'square', 0.28); }
 };
-/* iOS: stil loopend audio-element zet de sessie op "playback", zodat piepjes ook klinken met de stille schakelaar aan */
-let mediaUnlocked = false;
+/* iOS-audiosessie.
+   mix = true  -> "transient": de piepjes mengen door de muziek heen, muziek speelt door.
+                  Nadeel: met de belschakelaar op stil hoor je niets.
+   mix = false -> "playback" + stil loopend audio-element: altijd hoorbaar, ook op stil,
+                  maar iOS zet dan muziek van andere apps stil. */
+let silentOn = false;
 function silentWav(){
   const sr = 8000, n = 4000, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
-  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  const w = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
   w(0,'RIFF'); v.setUint32(4, 36 + n, true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true);
   v.setUint16(22,1,true); v.setUint32(24,sr,true); v.setUint32(28,sr,true); v.setUint16(32,1,true); v.setUint16(34,8,true);
   w(36,'data'); v.setUint32(40,n,true); for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
   let bin = ''; const b = new Uint8Array(buf); for (let i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]);
   return 'data:audio/wav;base64,' + btoa(bin);
 }
-function unlockAudio(){
-  Snd.init();
-  if (mediaUnlocked) return; mediaUnlocked = true;
-  try { const a = $('#unlock'); a.src = silentWav(); a.volume = 0.01; a.play().catch(() => {}); } catch(e){}
+function applyAudioMode(){
+  try { if (navigator.audioSession) navigator.audioSession.type = settings.mix ? 'transient' : 'playback'; } catch(e){}
+  const a = $('#unlock');
+  if (settings.mix) {
+    if (silentOn) { try { a.pause(); a.removeAttribute('src'); a.load(); } catch(e){} silentOn = false; }
+  } else if (!silentOn) {
+    silentOn = true;
+    try { a.src = silentWav(); a.volume = 0.01; a.play().catch(() => {}); } catch(e){}
+  }
 }
+function unlockAudio(){ Snd.init(); applyAudioMode(); }
 document.addEventListener('pointerdown', unlockAudio, { passive:true });
 document.addEventListener('touchend', unlockAudio, { passive:true });
 
@@ -687,12 +702,19 @@ function renderSettings(){
   $('#set-sound').classList.toggle('on', settings.sound);
   $('#set-ticks').classList.toggle('on', settings.ticks);
   $('#set-wake').classList.toggle('on', settings.wake);
+  $('#set-mix').classList.toggle('on', settings.mix);
+  $$('#set-vol button').forEach(b => b.classList.toggle('on', +b.dataset.v === settings.volume));
+  $('#mix-hint').textContent = settings.mix
+    ? 'Piepjes klinken door je muziek heen. Zet dan wel de belschakelaar van je iPhone uit stand stil.'
+    : 'Piepjes klinken altijd, ook met de belschakelaar op stil. iOS zet dan wel de muziek van andere apps stil.';
   $$('#set-prep button').forEach(b => b.classList.toggle('on', +b.dataset.v === settings.prep));
 }
 $('#set-sound').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); renderSettings(); if (settings.sound) { Snd.init(); Snd.tick(); } });
 $('#set-ticks').addEventListener('click', () => { settings.ticks = !settings.ticks; saveSettings(); renderSettings(); });
 $('#set-wake').addEventListener('click', () => { settings.wake = !settings.wake; saveSettings(); renderSettings(); });
 $$('#set-prep button').forEach(b => b.addEventListener('click', () => { settings.prep = +b.dataset.v; saveSettings(); renderSettings(); }));
+$$('#set-vol button').forEach(b => b.addEventListener('click', () => { settings.volume = +b.dataset.v; saveSettings(); renderSettings(); Snd.init(); Snd.tick(); }));
+$('#set-mix').addEventListener('click', () => { settings.mix = !settings.mix; saveSettings(); renderSettings(); applyAudioMode(); Snd.init(); Snd.tick(); });
 $('#snd-test').addEventListener('click', e => { e.stopPropagation(); Snd.init(); if (!settings.sound) { toast('Geluid staat uit'); return; } Snd.demo(); setTimeout(() => Snd.done(), 4200); });
 
 /* ---------- klokweergave ---------- */
@@ -804,7 +826,7 @@ function startWorkout(){
   Object.assign(T, { plan, i:0, rounds:[], paused:false, running:true, lastWhole:null, mode, total:tot });
   T.segStart = now(); T.workStart = plan[0].kind === 'prep' ? 0 : T.segStart;
   state = 'run'; result = null;
-  Snd.init(); keepAwake();
+  Snd.init(); applyAudioMode(); keepAwake();
   enterSegment(true);
   clearInterval(T.timer); T.timer = setInterval(tick, 50);
   renderCtrl(); renderRun(); setText(D.sub, '');

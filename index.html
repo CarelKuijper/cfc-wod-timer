@@ -180,12 +180,20 @@ button.chip{font:inherit;color:inherit}
 .field .l{font-family:var(--cond);font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--soft)}
 .field .l small{font-size:12px;letter-spacing:.2em;color:var(--dim);margin-left:6px}
 .tstep{display:flex;align-items:stretch;flex:none;background:var(--surface);border:1px solid var(--line-2);border-radius:3px;overflow:hidden}
+.tstep button.coarse{width:62px;font-family:var(--cond);font-weight:700;font-size:16px;letter-spacing:.04em;color:var(--muted);border-right:1px solid var(--line)}
+.tstep button.coarse:last-child{border-right:0;border-left:1px solid var(--line)}
 .tstep button{width:52px;height:52px;display:grid;place-items:center;font-size:26px;line-height:1;color:var(--soft);touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .tstep button:active{background:var(--surface-2);color:var(--text)}
 .tstep input{width:94px;text-align:center;background:transparent;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:0;
   font-family:var(--display);font-size:30px;color:var(--text);padding:0;-webkit-user-select:none;user-select:none;cursor:pointer}
 .tstep input:not([readonly]){background:var(--surface-2);-webkit-user-select:text;user-select:text;cursor:text}
 .tstep input::placeholder{color:var(--dim)}
+@media (max-width:560px){
+  .field{flex-direction:column;align-items:stretch;gap:10px}
+  .brow{flex-direction:column;align-items:stretch;gap:8px}
+  .tstep{width:100%}
+  .tstep input{flex:1 1 auto;width:auto;min-width:60px}
+}
 .chips-set{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px}
 .chip-set{border:1px solid var(--line-2);border-radius:3px;padding:10px 13px;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
 .chip-set:active{border-color:var(--accent);color:var(--text)}
@@ -313,7 +321,7 @@ button.chip{font:inherit;color:inherit}
         </div>
         <div class="summary"><span id="sum-text">Totaal</span><b id="sum-time">0:00</b></div>
     </div></div>
-    <div class="ov-bot"><button class="cb big" id="su-start"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span>Start</span></button></div>
+    <div class="ov-bot"><button class="cb big" id="su-start"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L19.5 7"/></svg><span>Klaar</span></button></div>
   </section>
 
   <!-- ============ INSTELLINGEN ============ -->
@@ -438,11 +446,15 @@ function parseTime(str){
   if (d.length <= 2) return parseInt(d, 10);
   return parseInt(d.slice(0, -2), 10) * 60 + Math.min(59, parseInt(d.slice(-2), 10));
 }
-function makeStep(el, cls, label){
+function makeStep(el, cls, label, coarse){
   el.className = 'tstep';
-  el.innerHTML = '<button type="button" aria-label="Minder">−</button><input class="' + cls + '" type="text" inputmode="numeric" enterkeyhint="done" aria-label="' + label + '" readonly><button type="button" aria-label="Meer">+</button>';
-  const b = el.querySelectorAll('button');
-  return { dec:b[0], inc:b[1], inp:el.querySelector('input') };
+  const less = coarse ? '<button type="button" class="coarse" aria-label="5 minuten minder">−5m</button>' : '';
+  const more = coarse ? '<button type="button" class="coarse" aria-label="5 minuten meer">+5m</button>' : '';
+  el.innerHTML = less + '<button type="button" aria-label="Minder">−</button><input class="' + cls + '" type="text" inputmode="numeric" enterkeyhint="done" aria-label="' + label + '" readonly><button type="button" aria-label="Meer">+</button>' + more;
+  const b = Array.from(el.querySelectorAll('button'));
+  return coarse
+    ? { decBig:b[0], dec:b[1], inc:b[2], incBig:b[3], inp:el.querySelector('input') }
+    : { dec:b[0], inc:b[1], inp:el.querySelector('input') };
 }
 function typeable(inp, current, commit){
   inp.addEventListener('click', () => { if (!inp.readOnly) return; inp.readOnly = false; inp.placeholder = inp.value; inp.value = ''; inp.focus(); });
@@ -450,13 +462,16 @@ function typeable(inp, current, commit){
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
 }
 function timeField(el, value, onChange){
-  const { dec, inc, inp } = makeStep(el, 'time', 'Tijd');
+  const { dec, inc, decBig, incBig, inp } = makeStep(el, 'time', 'Tijd', true);
   let v = Math.max(0, Math.round(value));
   const show = () => { inp.value = fmt(v); };
-  const set = (sec, fire) => { v = Math.max(0, Math.min(5999, Math.round(sec))); show(); if (fire !== false && onChange) onChange(v); };
+  const set = (sec, fire) => { v = Math.max(0, Math.min(86399, Math.round(sec))); show(); if (fire !== false && onChange) onChange(v); };
   show();
   holdRepeat(dec, () => set(v - stepSize(v, -1)));
   holdRepeat(inc, () => set(v + stepSize(v, 1)));
+  /* hele minuten blijven heel: 7:20 − 5m wordt 2:00, 7:20 + 5m wordt 12:00 */
+  holdRepeat(decBig, () => set(v % 300 ? Math.floor(v / 300) * 300 : v - 300));
+  holdRepeat(incBig, () => set(Math.floor(v / 300) * 300 + 300));
   typeable(inp, () => v, val => { const p = parseTime(val); if (p === null) show(); else set(p); });
   return { get: () => v, set: sec => set(sec, false) };
 }
@@ -690,7 +705,8 @@ $('#su-back').addEventListener('click', () => { $('#setup').hidden = true; rende
 $('#su-start').addEventListener('click', () => {
   mode = setupMode; store.set('cfc.mode', mode);
   $('#setup').hidden = true; closePicker();
-  state = 'ready'; startWorkout();
+  state = 'ready'; result = null;        /* klok staat klaar, je start zelf met Start */
+  renderStage(); renderCtrl();
 });
 
 /* ---------- instellingen ---------- */

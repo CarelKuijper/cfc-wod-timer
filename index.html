@@ -728,7 +728,7 @@ function renderSettings(){
 $('#set-sound').addEventListener('click', () => { settings.sound = !settings.sound; saveSettings(); renderSettings(); if (settings.sound) { Snd.init(); Snd.tick(); } });
 $('#set-ticks').addEventListener('click', () => { settings.ticks = !settings.ticks; saveSettings(); renderSettings(); });
 $('#set-wake').addEventListener('click', () => { settings.wake = !settings.wake; saveSettings(); renderSettings(); });
-$$('#set-prep button').forEach(b => b.addEventListener('click', () => { settings.prep = +b.dataset.v; saveSettings(); renderSettings(); }));
+$$('#set-prep button').forEach(b => b.addEventListener('click', () => { settings.prep = +b.dataset.v; saveSettings(); renderSettings(); if (state === 'ready') renderStage(); }));
 $$('#set-vol button').forEach(b => b.addEventListener('click', () => { settings.volume = +b.dataset.v; saveSettings(); renderSettings(); Snd.init(); Snd.tick(); }));
 $('#set-mix').addEventListener('click', () => { settings.mix = !settings.mix; saveSettings(); renderSettings(); applyAudioMode(); Snd.init(); Snd.tick(); });
 $('#snd-test').addEventListener('click', e => { e.stopPropagation(); Snd.init(); if (!settings.sound) { toast('Geluid staat uit'); return; } Snd.demo(); setTimeout(() => Snd.done(), 4200); });
@@ -765,9 +765,10 @@ function roundsMode(m){ return m === 'fortime' || m === 'amrap'; }
 
 function renderReady(){
   const plan = compile(mode, null, 0), first = plan[0], tot = planTotal(plan);
-  setPhase('idle');
-  setText(D.label, (modeTitle(mode) + ' · gereed').toUpperCase());
-  setDigits(first ? fmt(first.kind === 'open' ? 0 : first.dur / 1000, true) : '00:00');
+  const prep = settings.prep | 0;
+  setPhase(prep > 0 ? 'prep' : 'idle');
+  setText(D.label, (modeTitle(mode) + ' · ' + (prep > 0 ? 'aftellen' : 'gereed')).toUpperCase());
+  setDigits(prep > 0 ? fmt(prep, true) : (first ? fmt(first.kind === 'open' ? 0 : first.dur / 1000, true) : '00:00'));
   if (roundsMode(mode)) chip1('Ronde', '00');
   else if (mode === 'countdown') chip1(null);
   else if (mode === 'custom') chip1('Blokken', pad(cfg.custom.blocks.length));
@@ -775,7 +776,7 @@ function renderReady(){
   if (mode === 'fortime') chip2('Cap', cfg.fortime.cap ? fmt(cfg.fortime.cap, true) : '—');
   else chip2('Totaal', totLabel(tot, true));
   D.fill.style.width = '0%';
-  setText(D.sub, '');
+  setText(D.sub, prep > 0 ? 'Aftellen begint zodra je start' : '');
 }
 function renderRun(){
   const t = T.paused ? T.pauseAt : now(); const s = T.plan[T.i]; if (!s) return;
@@ -820,7 +821,7 @@ const IC2 = {
 };
 function renderCtrl(){
   let b = [];
-  if (state === 'ready') b = [['start', 'Start', IC2.play, 'big']];
+  if (state === 'ready') b = [['start', 'Start workout', IC2.play, 'big']];
   else if (state === 'run') b = T.paused ? [['resume', 'Hervatten', IC2.play, 'go'], ['stop', 'Stoppen', IC2.stop, 'stop']] : [['pause', 'Pauze', IC2.pause, '']];
   else b = [['start', 'Opnieuw', IC2.again, 'big']];
   D.ctrl.innerHTML = b.map(x => '<button class="cb ' + x[3] + '" data-act="' + x[0] + '">' + x[2] + '<span>' + x[1] + '</span></button>').join('');
